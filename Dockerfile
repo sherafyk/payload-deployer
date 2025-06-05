@@ -29,6 +29,7 @@ RUN corepack enable pnpm && pnpm exec next build --experimental-build-mode compi
 
 # Production stage
 FROM base AS runner
+RUN corepack enable pnpm
 WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
