@@ -9,15 +9,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
       - uses: actions/setup-node@v3
         with:
           node-version: 20
           cache: 'pnpm'
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-      - name: Enable pnpm
-        run: corepack enable pnpm
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Build
