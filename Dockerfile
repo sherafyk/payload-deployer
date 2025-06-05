@@ -10,13 +10,20 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies using the available lockfile
-COPY package.json pnpm-lock.yaml* package-lock.json* yarn.lock* ./
+# Install dependencies when a Node project is present
+COPY package.json* pnpm-lock.yaml* package-lock.json* yarn.lock* ./
 RUN \
-  if [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm install --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f yarn.lock ]; then yarn --frozen-lockfile; \
-  else echo "No lockfile found" && exit 1; fi
+  if [ -f pnpm-lock.yaml ]; then \
+    corepack enable pnpm && pnpm install --frozen-lockfile; \
+  elif [ -f package-lock.json ]; then \
+    npm ci; \
+  elif [ -f yarn.lock ]; then \
+    yarn --frozen-lockfile; \
+  elif [ -f package.json ]; then \
+    npm install; \
+  else \
+    echo "No package.json found, skipping install"; \
+  fi
 
 # Builder stage
 FROM base AS builder
@@ -24,8 +31,15 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Build without requiring DB connection
-RUN corepack enable pnpm && pnpm exec next build --experimental-build-mode compile
+# Ensure required directories exist to prevent COPY errors
+RUN mkdir -p public .next/standalone .next/static
+
+# Build only when a Node project is present
+RUN if [ -f package.json ]; then \
+      corepack enable pnpm && pnpm exec next build --experimental-build-mode compile; \
+    else \
+      echo "No package.json found, skipping build"; \
+    fi
 
 # Production stage
 FROM base AS runner
@@ -34,7 +48,7 @@ ENV NODE_ENV=production
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 
 COPY --from=builder /app/public ./public
-RUN mkdir .next && chown nextjs:nodejs .next
+RUN mkdir -p .next .next/static && chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 

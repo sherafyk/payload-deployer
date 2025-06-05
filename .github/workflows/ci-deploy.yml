@@ -10,14 +10,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: pnpm/action-setup@v2
+        if: ${{ hashFiles('package.json') != '' }}
         with:
           version: 8
       - uses: actions/setup-node@v3
+        if: ${{ hashFiles('package.json') != '' }}
         with:
           node-version: 20
       - name: Install dependencies
+        if: ${{ hashFiles('package.json') != '' }}
         run: pnpm install --frozen-lockfile
       - name: Build
+        if: ${{ hashFiles('package.json') != '' }}
         run: pnpm run build
       - name: Login to GHCR
         uses: docker/login-action@v3
