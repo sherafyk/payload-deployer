@@ -5,6 +5,13 @@ set -eu
 read -r -p "Site name: " SITE_NAME
 read -r -p "Site domain: " SITE_DOMAIN
 
+# Repository containing the Payload project
+REPO_URL="${1:-${REPO_URL:-}}"
+if [ -z "$REPO_URL" ]; then
+  echo "Usage: REPO_URL=<git repository> $0 [repo_url]" >&2
+  exit 1
+fi
+
 TARGET="/srv/$SITE_NAME"
 
 if [ -d "$TARGET" ]; then
@@ -12,7 +19,7 @@ if [ -d "$TARGET" ]; then
   exit 1
 fi
 
-git clone https://github.com/your-user/payload-deployer.git "$TARGET"
+git clone "$REPO_URL" "$TARGET"
 
 cp "$TARGET/.env.example" "$TARGET/.env"
 

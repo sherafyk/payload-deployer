@@ -34,14 +34,17 @@ Copy `.env.example` to `.env` and adjust the variables:
 
 ### Initialize a Site
 
-Run the following on your server:
+Run the following on your server, setting the Git repository for your Payload
+project. You can provide the URL through the `REPO_URL` environment variable or
+as the first argument to the script:
 
 ```sh
-sudo ./scripts/init-site.sh
+REPO_URL=https://github.com/your-user/your-project.git sudo ./scripts/init-site.sh
 ```
 
-The script clones this repository to `/srv/<site>` and creates a systemd service
-that manages the Docker Compose project. The service is enabled automatically.
+The script clones the specified repository to `/srv/<site>` and creates a
+systemd service that manages the Docker Compose project. The service is enabled
+automatically.
 
 ### Deploy Updates
 
