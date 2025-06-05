@@ -43,6 +43,7 @@ RUN if [ -f package.json ]; then \
 
 # Production stage
 FROM base AS runner
+RUN corepack enable pnpm
 WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
