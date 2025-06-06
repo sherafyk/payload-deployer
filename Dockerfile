@@ -25,6 +25,9 @@ RUN \
     echo "No package.json found, skipping install"; \
   fi
 
+# Ensure node_modules exists even when no dependencies are installed
+RUN mkdir -p node_modules
+
 # Builder stage
 FROM base AS builder
 WORKDIR /app
