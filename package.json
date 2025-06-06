@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Deployment helper scripts for Payload CMS",
   "private": true,
+  "packageManager": "pnpm@8.15.9",
   "scripts": {
     "test": "echo \"No tests configured\"",
     "build": "echo \"No build step defined\""
