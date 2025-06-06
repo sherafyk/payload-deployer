@@ -12,6 +12,19 @@ for quickly provisioning new Payload CMS sites.
 - `deploy-update.sh` for updating an existing site
 - CI workflow to build and deploy images to your server
 
+## Setup
+
+The workflow in `.github/workflows/ci-deploy.yml` builds and deploys your project using secrets from your repository.
+It expects:
+
+- `GHCR_TOKEN` – a personal access token with `write:packages` permission for pushing images to GHCR
+- `VPS_HOST` – the hostname or IP address of your server
+- `VPS_USER` – the SSH user used during deployment
+- `VPS_SSH_KEY` – private key for authenticating to the server
+- `SITE_NAME` – directory name of the site on the VPS
+
+Create a personal access token by visiting **Settings → Developer settings → Personal access tokens** on GitHub and selecting the `write:packages` scope. Then add all of the above values as **Repository secrets** under **Settings → Secrets and variables → Actions**.
+
 ## Getting Started
 
 ### Prerequisites
