@@ -10,24 +10,17 @@ for quickly provisioning new Payload CMS sites.
 - `docker-compose.yml` including PostgreSQL and MinIO
 - `init-site.sh` script for initializing a new site on a server
 - `deploy-update.sh` for updating an existing site
-- CI workflow to build and deploy images to your server
+- CI workflow to build and push images to GHCR
 - Placeholder `build` script in `package.json` that can be customized for your project
 
 ## Setup
 
-The workflow in `.github/workflows/ci-deploy.yml` builds and deploys your project using secrets from your repository.
-At a minimum it requires:
+The workflow in `.github/workflows/ci-deploy.yml` builds your project and pushes a Docker image to GHCR using secrets from your repository.
+It requires:
 
 - `GHCR_TOKEN` – a personal access token with `write:packages` permission for pushing images to GHCR.
 
-To enable automatic deployment over SSH you can also configure these optional secrets:
-
-- `VPS_HOST` – the hostname or IP address of your server
-- `VPS_USER` – the SSH user used during deployment
-- `VPS_SSH_KEY` – private key for authenticating to the server
-- `SITE_NAME` – directory name of the site on the VPS used to construct the deployment path (e.g. `/srv/<SITE_NAME>`)
-
-If the optional secrets are omitted, the deploy job is skipped and you can run `scripts/deploy-update.sh` manually on the server.
+Run `scripts/deploy-update.sh` on your server to pull the latest image and restart the containers.
 
 Create a personal access token by visiting **Settings → Developer settings → Personal access tokens** on GitHub and selecting the `write:packages` scope. Then add the required values as **Repository secrets** under **Settings → Secrets and variables → Actions**.
 
@@ -68,8 +61,8 @@ automatically.
 ### Deploy Updates
 
 Once changes are pushed to the `main` branch, the GitHub Actions workflow builds
-a Docker image and deploys it to the server by running `deploy-update.sh` over
-SSH. You can also run the script manually:
+a Docker image and pushes it to GHCR. Run `deploy-update.sh` on the server to
+pull the new image and restart the containers:
 
 ```sh
 cd /srv/<site>
@@ -81,7 +74,6 @@ sudo ./scripts/deploy-update.sh
 - Ensure environment variables are correctly set in `.env`.
 - Check `systemctl status <site>.service` for service logs.
 - Use `docker compose logs` to inspect container output.
-- If the deploy job is skipped, verify that `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` and `SITE_NAME` are configured as repository secrets.
 
 ## License
 
