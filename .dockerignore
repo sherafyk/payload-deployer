@@ -1,0 +1,9 @@
+.git
+node_modules/
+scripts/
+.env
+*.log
+npm-debug.log*
+*.tmp
+tmp/
+temp/
