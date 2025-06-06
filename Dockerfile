@@ -14,7 +14,7 @@ WORKDIR /app
 COPY package.json* pnpm-lock.yaml* package-lock.json* yarn.lock* ./
   RUN \
     if [ -f pnpm-lock.yaml ]; then \
-      corepack enable pnpm && pnpm install --frozen-lockfile; \
+      corepack prepare pnpm@8.15.9 --activate && pnpm install --frozen-lockfile; \
     elif [ -f package-lock.json ]; then \
       npm ci; \
     elif [ -f yarn.lock ]; then \
@@ -39,7 +39,7 @@ RUN mkdir -p public .next/standalone .next/static
 
 # Build only when a Node project is present
 RUN if [ -f pnpm-lock.yaml ]; then \
-      corepack enable pnpm && pnpm run build; \
+      corepack prepare pnpm@8.15.9 --activate && pnpm run build; \
     elif [ -f package-lock.json ]; then \
       npm run build; \
     elif [ -f yarn.lock ]; then \
@@ -52,7 +52,7 @@ RUN if [ -f pnpm-lock.yaml ]; then \
 
 # Production stage
 FROM base AS runner
-RUN corepack enable pnpm
+RUN corepack prepare pnpm@8.15.9 --activate
 WORKDIR /app
 ENV NODE_ENV=production
 RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
