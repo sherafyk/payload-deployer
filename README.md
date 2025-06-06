@@ -1,79 +1,81 @@
 # Payload Deployer
 
-Automates the deployment of [Payload CMS](https://github.com/payloadcms/payload) on a Debian based VPS using Docker.
-This repository provides Docker configuration, helper scripts and a GitHub Actions workflow
-for quickly provisioning new Payload CMS sites.
+Payload Deployer automates setting up [Payload CMS](https://github.com/payloadcms/payload) on a Debian based VPS.  It provides the Docker configuration and helper scripts needed to run a Payload project behind Traefik with PostgreSQL and MinIO.
 
-## Features
+The typical workflow is:
+1. Push your Payload CMS code to GitHub so a Docker image is built and published to GHCR.
+2. Run the provided scripts on your VPS to clone the project and start the containers.
+3. Whenever you push updates, pull the latest image and restart the site.
 
-- Multi-stage `Dockerfile` producing a minimal image
-- `docker-compose.yml` including PostgreSQL and MinIO
-- `init-site.sh` script for initializing a new site on a server
-- `deploy-update.sh` for updating an existing site
-- CI workflow to build and push images to GHCR
-- Placeholder `build` script in `package.json` that can be customized for your project
+---
 
-## Setup
+## Requirements
 
-The workflow in `.github/workflows/ci-deploy.yml` builds your project and pushes a Docker image to GHCR using secrets from your repository.
-It requires:
+* Debian or Ubuntu VPS with **Docker**, **Docker Compose** and **Traefik** installed
+* A domain name pointing to the server
+* GitHub account with a repository containing your Payload CMS project
+* Personal access token for GHCR (`write:packages` scope) to use in the workflow
 
-- `GHCR_TOKEN` – a personal access token with `write:packages` permission for pushing images to GHCR.
+Below are the detailed steps to get everything running.
 
-Run `scripts/deploy-update.sh` on your server to pull the latest image and restart the containers.
+## 1. Set up your repository
 
-Create a personal access token by visiting **Settings → Developer settings → Personal access tokens** on GitHub and selecting the `write:packages` scope. Then add the required values as **Repository secrets** under **Settings → Secrets and variables → Actions**.
+1. Fork or create a new repository for your Payload CMS project.
+2. Copy `.env.example` from this repository into your project and adjust the values as needed.
+3. In your GitHub repository settings, add a repository secret named `GHCR_TOKEN` containing a personal access token that has `write:packages` permission.  The CI workflow uses this token to push your Docker image to GitHub Container Registry.
+4. Commit your changes and push to the `main` branch.  The workflow defined in `.github/workflows/ci-deploy.yml` will build a Docker image tagged `ghcr.io/<owner>/<repo>:latest`.
 
-## Getting Started
+## 2. Prepare the VPS
 
-### Prerequisites
+Make sure Docker and Docker Compose are installed.  On a fresh Debian/Ubuntu server you can use:
 
-- Debian based server with Docker, Docker Compose and Traefik
-- SSH access to the server
-- A domain pointing to the server
+```sh
+sudo apt update
+sudo apt install -y docker.io docker-compose git
+```
 
-### Environment Variables
+You should also have Traefik running with a `websecure` entrypoint and Let's Encrypt resolver.  The containers created by this project attach to the `web` network used by Traefik.
 
-Copy `.env.example` to `.env` and adjust the variables:
+Clone this repository to the server so you can use the helper scripts:
 
-- `PAYLOAD_SECRET` – secret used to encrypt Payload data
-- `DATABASE_URI` – PostgreSQL connection string
-- `S3_ENDPOINT` – URL of the MinIO instance
-- `PORT` – port the application should listen on
-- `SITE_NAME` – identifier for the site
-- `SITE_DOMAIN` – domain served by Traefik
-- `TRUST_PROXY` – set to `1` when running behind a proxy
+```sh
+git clone https://github.com/your-user/payload-deployer.git
+cd payload-deployer
+```
 
-### Initialize a Site
+## 3. Initialize a site
 
-Run the following on your server, setting the Git repository for your Payload
-project. You can provide the URL through the `REPO_URL` environment variable or
-as the first argument to the script:
+Run the `init-site.sh` script as root (or with sudo).  Provide the Git URL of the repository containing your Payload project when prompted or via the `REPO_URL` variable.
 
 ```sh
 REPO_URL=https://github.com/your-user/your-project.git sudo ./scripts/init-site.sh
 ```
 
-The script clones the specified repository to `/srv/<site>` and creates a
-systemd service that manages the Docker Compose project. The service is enabled
-automatically.
+The script will:
+1. Ask for a site name and domain.
+2. Clone the project to `/srv/<site>`.
+3. Copy the `.env` file and populate required values such as `PAYLOAD_SECRET`.
+4. Create a systemd service that manages the Docker Compose stack.
+5. Enable and start the service immediately.
 
-### Deploy Updates
+Once finished, Traefik will serve your site at the domain you specified and Let's Encrypt certificates will be obtained automatically.
 
-Once changes are pushed to the `main` branch, the GitHub Actions workflow builds
-a Docker image and pushes it to GHCR. Run `deploy-update.sh` on the server to
-pull the new image and restart the containers:
+## 4. Deploy updates
+
+Whenever you push to `main`, the CI workflow builds a new image.  To deploy the changes on your VPS run:
 
 ```sh
 cd /srv/<site>
 sudo ./scripts/deploy-update.sh
 ```
 
-### Troubleshooting
+This pulls the latest image, runs database migrations and restarts the containers.
 
-- Ensure environment variables are correctly set in `.env`.
-- Check `systemctl status <site>.service` for service logs.
-- Use `docker compose logs` to inspect container output.
+## Troubleshooting
+
+* Ensure the values in `/srv/<site>/.env` are correct.
+* Check `systemctl status <site>.service` for service state and logs.
+* Inspect container output with `docker compose logs` if the site fails to start.
 
 ## License
 
