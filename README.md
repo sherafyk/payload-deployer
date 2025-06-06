@@ -81,6 +81,9 @@ sudo ./scripts/deploy-update.sh
 - Use `docker compose logs` to inspect container output.
 - If the deploy workflow fails with a path like `/srv//scripts/deploy-update.sh`,
   verify that the `SITE_NAME` secret is configured in your repository settings.
+- The CI workflow also checks for `GHCR_TOKEN`, `VPS_HOST`, `VPS_USER`,
+  and `VPS_SSH_KEY`. Missing secrets cause the **Validate configuration**
+  step to fail with a clear error message.
 
 ## License
 
