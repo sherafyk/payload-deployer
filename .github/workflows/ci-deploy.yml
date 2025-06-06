@@ -39,24 +39,24 @@ jobs:
     steps:
       - name: Validate configuration
         run: |
+          missing=""
           if [ -z "${{ secrets.SITE_NAME }}" ]; then
-            echo "Error: SITE_NAME secret is not set" >&2
-            exit 1
+            missing="$missing SITE_NAME"
           fi
           if [ -z "${{ secrets.VPS_HOST }}" ]; then
-            echo "Error: VPS_HOST secret is not set" >&2
-            exit 1
+            missing="$missing VPS_HOST"
           fi
           if [ -z "${{ secrets.VPS_USER }}" ]; then
-            echo "Error: VPS_USER secret is not set" >&2
-            exit 1
+            missing="$missing VPS_USER"
           fi
           if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
-            echo "Error: VPS_SSH_KEY secret is not set" >&2
-            exit 1
+            missing="$missing VPS_SSH_KEY"
           fi
           if [ -z "${{ secrets.GHCR_TOKEN }}" ]; then
-            echo "Error: GHCR_TOKEN secret is not set" >&2
+            missing="$missing GHCR_TOKEN"
+          fi
+          if [ -n "$missing" ]; then
+            echo "Error: missing required secrets:$missing" >&2
             exit 1
           fi
       - name: Deploy via SSH
