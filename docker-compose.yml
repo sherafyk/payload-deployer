@@ -17,7 +17,7 @@ services:
       - minio
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.${SITE_NAME}.rule=Host(`$SITE_DOMAIN`)"
+      - "traefik.http.routers.${SITE_NAME}.rule=Host(`${SITE_DOMAIN}`)"
       - "traefik.http.routers.${SITE_NAME}.entrypoints=websecure"
       - "traefik.http.routers.${SITE_NAME}.tls.certresolver=lets-encrypt"
     networks:
