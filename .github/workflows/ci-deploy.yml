@@ -37,6 +37,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Validate configuration
+        run: |
+          if [ -z "${{ secrets.SITE_NAME }}" ]; then
+            echo "Error: SITE_NAME secret is not set" >&2
+            exit 1
+          fi
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.6
         with:

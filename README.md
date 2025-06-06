@@ -21,7 +21,10 @@ It expects:
 - `VPS_HOST` – the hostname or IP address of your server
 - `VPS_USER` – the SSH user used during deployment
 - `VPS_SSH_KEY` – private key for authenticating to the server
-- `SITE_NAME` – directory name of the site on the VPS
+- `SITE_NAME` – directory name of the site on the VPS. This value is
+  used to construct the deployment path on your server (e.g.
+  `/srv/<SITE_NAME>`). If omitted, the deploy step will fail with a
+  path like `/srv//scripts/deploy-update.sh`.
 
 Create a personal access token by visiting **Settings → Developer settings → Personal access tokens** on GitHub and selecting the `write:packages` scope. Then add all of the above values as **Repository secrets** under **Settings → Secrets and variables → Actions**.
 
@@ -75,6 +78,8 @@ sudo ./scripts/deploy-update.sh
 - Ensure environment variables are correctly set in `.env`.
 - Check `systemctl status <site>.service` for service logs.
 - Use `docker compose logs` to inspect container output.
+- If the deploy workflow fails with a path like `/srv//scripts/deploy-update.sh`,
+  verify that the `SITE_NAME` secret is configured in your repository settings.
 
 ## License
 
