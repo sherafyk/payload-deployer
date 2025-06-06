@@ -25,7 +25,8 @@ It expects:
 - `SITE_NAME` – directory name of the site on the VPS. This value is
   used to construct the deployment path on your server (e.g.
   `/srv/<SITE_NAME>`). If omitted, the deploy step will fail with a
-  path like `/srv//scripts/deploy-update.sh`.
+  path like `/srv//scripts/deploy-update.sh` and print
+  `Error: SITE_NAME secret is not set` in the workflow logs.
 
 Create a personal access token by visiting **Settings → Developer settings → Personal access tokens** on GitHub and selecting the `write:packages` scope. Then add all of the above values as **Repository secrets** under **Settings → Secrets and variables → Actions**.
 
@@ -84,6 +85,9 @@ sudo ./scripts/deploy-update.sh
 - The CI workflow also checks for `GHCR_TOKEN`, `VPS_HOST`, `VPS_USER`,
   and `VPS_SSH_KEY`. Missing secrets cause the **Validate configuration**
   step to fail with a clear error message.
+- If the workflow reports `Error: SITE_NAME secret is not set`, the secret has
+  not been added to your repository. Configure it under **Settings → Secrets and
+  variables → Actions**.
 
 ## License
 
