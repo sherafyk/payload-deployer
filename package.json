@@ -1,0 +1,9 @@
+{
+  "name": "payload-deployer",
+  "version": "1.0.0",
+  "description": "Deployment helper scripts for Payload CMS",
+  "private": true,
+  "scripts": {
+    "test": "echo \"No tests configured\""
+  }
+}
