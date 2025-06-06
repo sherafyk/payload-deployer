@@ -11,6 +11,7 @@ for quickly provisioning new Payload CMS sites.
 - `init-site.sh` script for initializing a new site on a server
 - `deploy-update.sh` for updating an existing site
 - CI workflow to build and deploy images to your server
+- Placeholder `build` script in `package.json` that can be customized for your project
 
 ## Setup
 
