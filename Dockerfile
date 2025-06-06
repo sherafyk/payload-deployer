@@ -12,18 +12,18 @@ WORKDIR /app
 
 # Install dependencies when a Node project is present
 COPY package.json* pnpm-lock.yaml* package-lock.json* yarn.lock* ./
-RUN \
-  if [ -f pnpm-lock.yaml ]; then \
-    corepack enable pnpm && pnpm install --frozen-lockfile; \
-  elif [ -f package-lock.json ]; then \
-    npm ci; \
-  elif [ -f yarn.lock ]; then \
-    yarn --frozen-lockfile; \
-  elif [ -f package.json ]; then \
-    npm install; \
-  else \
-    echo "No package.json found, skipping install"; \
-  fi
+  RUN \
+    if [ -f pnpm-lock.yaml ]; then \
+      corepack enable pnpm && pnpm install --frozen-lockfile; \
+    elif [ -f package-lock.json ]; then \
+      npm ci; \
+    elif [ -f yarn.lock ]; then \
+      corepack enable yarn && yarn install --frozen-lockfile; \
+    elif [ -f package.json ]; then \
+      npm install; \
+    else \
+      echo "No package.json found, skipping install"; \
+    fi
 
 # Ensure node_modules exists even when no dependencies are installed
 RUN mkdir -p node_modules
@@ -38,8 +38,14 @@ COPY . .
 RUN mkdir -p public .next/standalone .next/static
 
 # Build only when a Node project is present
-RUN if [ -f package.json ]; then \
-      corepack enable pnpm && pnpm exec next build --experimental-build-mode compile; \
+RUN if [ -f pnpm-lock.yaml ]; then \
+      corepack enable pnpm && pnpm run build; \
+    elif [ -f package-lock.json ]; then \
+      npm run build; \
+    elif [ -f yarn.lock ]; then \
+      corepack enable yarn && yarn build; \
+    elif [ -f package.json ]; then \
+      npm run build; \
     else \
       echo "No package.json found, skipping build"; \
     fi
