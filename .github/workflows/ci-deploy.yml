@@ -36,29 +36,8 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    if: ${{ secrets.SITE_NAME != '' && secrets.VPS_HOST != '' && secrets.VPS_USER != '' && secrets.VPS_SSH_KEY != '' }}
     steps:
-      - name: Validate configuration
-        run: |
-          missing=""
-          if [ -z "${{ secrets.SITE_NAME }}" ]; then
-            missing="$missing SITE_NAME"
-          fi
-          if [ -z "${{ secrets.VPS_HOST }}" ]; then
-            missing="$missing VPS_HOST"
-          fi
-          if [ -z "${{ secrets.VPS_USER }}" ]; then
-            missing="$missing VPS_USER"
-          fi
-          if [ -z "${{ secrets.VPS_SSH_KEY }}" ]; then
-            missing="$missing VPS_SSH_KEY"
-          fi
-          if [ -z "${{ secrets.GHCR_TOKEN }}" ]; then
-            missing="$missing GHCR_TOKEN"
-          fi
-          if [ -n "$missing" ]; then
-            echo "Error: missing required secrets:$missing" >&2
-            exit 1
-          fi
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.6
         with:

@@ -16,19 +16,20 @@ for quickly provisioning new Payload CMS sites.
 ## Setup
 
 The workflow in `.github/workflows/ci-deploy.yml` builds and deploys your project using secrets from your repository.
-It expects:
+At a minimum it requires:
 
-- `GHCR_TOKEN` – a personal access token with `write:packages` permission for pushing images to GHCR
+- `GHCR_TOKEN` – a personal access token with `write:packages` permission for pushing images to GHCR.
+
+To enable automatic deployment over SSH you can also configure these optional secrets:
+
 - `VPS_HOST` – the hostname or IP address of your server
 - `VPS_USER` – the SSH user used during deployment
 - `VPS_SSH_KEY` – private key for authenticating to the server
-- `SITE_NAME` – directory name of the site on the VPS. This value is
-  used to construct the deployment path on your server (e.g.
-  `/srv/<SITE_NAME>`). If omitted, the deploy step will fail with a
-  path like `/srv//scripts/deploy-update.sh` and print
-  `Error: SITE_NAME secret is not set` in the workflow logs.
+- `SITE_NAME` – directory name of the site on the VPS used to construct the deployment path (e.g. `/srv/<SITE_NAME>`)
 
-Create a personal access token by visiting **Settings → Developer settings → Personal access tokens** on GitHub and selecting the `write:packages` scope. Then add all of the above values as **Repository secrets** under **Settings → Secrets and variables → Actions**.
+If the optional secrets are omitted, the deploy job is skipped and you can run `scripts/deploy-update.sh` manually on the server.
+
+Create a personal access token by visiting **Settings → Developer settings → Personal access tokens** on GitHub and selecting the `write:packages` scope. Then add the required values as **Repository secrets** under **Settings → Secrets and variables → Actions**.
 
 ## Getting Started
 
@@ -80,14 +81,7 @@ sudo ./scripts/deploy-update.sh
 - Ensure environment variables are correctly set in `.env`.
 - Check `systemctl status <site>.service` for service logs.
 - Use `docker compose logs` to inspect container output.
-- If the deploy workflow fails with a path like `/srv//scripts/deploy-update.sh`,
-  verify that the `SITE_NAME` secret is configured in your repository settings.
-- The CI workflow also checks for `GHCR_TOKEN`, `VPS_HOST`, `VPS_USER`,
-  and `VPS_SSH_KEY`. Missing secrets cause the **Validate configuration**
-  step to fail with a clear error message.
-- If the workflow reports `Error: SITE_NAME secret is not set`, the secret has
-  not been added to your repository. Configure it under **Settings → Secrets and
-  variables → Actions**.
+- If the deploy job is skipped, verify that `VPS_HOST`, `VPS_USER`, `VPS_SSH_KEY` and `SITE_NAME` are configured as repository secrets.
 
 ## License
 
