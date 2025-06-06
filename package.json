@@ -4,6 +4,7 @@
   "description": "Deployment helper scripts for Payload CMS",
   "private": true,
   "scripts": {
-    "test": "echo \"No tests configured\""
+    "test": "echo \"No tests configured\"",
+    "build": "echo \"No build step defined\""
   }
 }
